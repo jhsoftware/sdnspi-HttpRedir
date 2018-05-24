@@ -22,88 +22,59 @@ Partial Class frmConfigIP
   'Do not modify it using the code editor.
   <System.Diagnostics.DebuggerStepThrough()> _
   Private Sub InitializeComponent()
-    Me.ddDirect = New System.Windows.Forms.ComboBox
-    Me.Label4 = New System.Windows.Forms.Label
-    Me.txtPort = New System.Windows.Forms.TextBox
-    Me.txtDummy = New System.Windows.Forms.TextBox
-    Me.ddNat = New System.Windows.Forms.ComboBox
-    Me.Label3 = New System.Windows.Forms.Label
-    Me.Label2 = New System.Windows.Forms.Label
-    Me.Label1 = New System.Windows.Forms.Label
-    Me.radDirect = New System.Windows.Forms.RadioButton
-    Me.radNAT = New System.Windows.Forms.RadioButton
-    Me.GroupBox1 = New System.Windows.Forms.GroupBox
-    Me.pnlDirect = New System.Windows.Forms.Panel
-    Me.pnlNAT = New System.Windows.Forms.Panel
-    Me.btnDetect = New System.Windows.Forms.Button
-    Me.btnOK = New System.Windows.Forms.Button
-    Me.btnCancel = New System.Windows.Forms.Button
+    Me.txtMap80 = New System.Windows.Forms.TextBox()
+    Me.txtDummy = New System.Windows.Forms.TextBox()
+    Me.Label2 = New System.Windows.Forms.Label()
+    Me.Label1 = New System.Windows.Forms.Label()
+    Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+    Me.pnlNAT = New System.Windows.Forms.Panel()
+    Me.lblMap443 = New System.Windows.Forms.Label()
+    Me.txtMap443 = New System.Windows.Forms.TextBox()
+    Me.lblMap80 = New System.Windows.Forms.Label()
+    Me.btnDetect = New System.Windows.Forms.Button()
+    Me.btnOK = New System.Windows.Forms.Button()
+    Me.btnCancel = New System.Windows.Forms.Button()
+    Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+    Me.chkHTTPS = New System.Windows.Forms.CheckBox()
+    Me.chkHTTP = New System.Windows.Forms.CheckBox()
+    Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+    Me.chkNAT = New System.Windows.Forms.CheckBox()
+    Me.Label3 = New System.Windows.Forms.Label()
+    Me.Label4 = New System.Windows.Forms.Label()
+    Me.ddIPv4 = New System.Windows.Forms.ComboBox()
+    Me.ddIPv6 = New System.Windows.Forms.ComboBox()
     Me.GroupBox1.SuspendLayout()
-    Me.pnlDirect.SuspendLayout()
     Me.pnlNAT.SuspendLayout()
+    Me.GroupBox2.SuspendLayout()
+    Me.GroupBox3.SuspendLayout()
     Me.SuspendLayout()
     '
-    'ddDirect
+    'txtMap80
     '
-    Me.ddDirect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-    Me.ddDirect.FormattingEnabled = True
-    Me.ddDirect.Location = New System.Drawing.Point(0, 19)
-    Me.ddDirect.Name = "ddDirect"
-    Me.ddDirect.Size = New System.Drawing.Size(120, 21)
-    Me.ddDirect.TabIndex = 1
-    '
-    'Label4
-    '
-    Me.Label4.AutoSize = True
-    Me.Label4.Location = New System.Drawing.Point(-3, 3)
-    Me.Label4.Name = "Label4"
-    Me.Label4.Size = New System.Drawing.Size(232, 13)
-    Me.Label4.TabIndex = 0
-    Me.Label4.Text = "Perform rediction on port 80 TCP on IP address:"
-    '
-    'txtPort
-    '
-    Me.txtPort.Location = New System.Drawing.Point(161, 69)
-    Me.txtPort.MaxLength = 5
-    Me.txtPort.Name = "txtPort"
-    Me.txtPort.Size = New System.Drawing.Size(43, 20)
-    Me.txtPort.TabIndex = 5
-    Me.txtPort.Text = "80"
+    Me.txtMap80.Location = New System.Drawing.Point(231, 74)
+    Me.txtMap80.Margin = New System.Windows.Forms.Padding(0, 3, 3, 3)
+    Me.txtMap80.MaxLength = 5
+    Me.txtMap80.Name = "txtMap80"
+    Me.txtMap80.Size = New System.Drawing.Size(43, 20)
+    Me.txtMap80.TabIndex = 16
+    Me.txtMap80.Text = "80"
     '
     'txtDummy
     '
     Me.txtDummy.Location = New System.Drawing.Point(0, 19)
     Me.txtDummy.Name = "txtDummy"
     Me.txtDummy.Size = New System.Drawing.Size(44, 20)
-    Me.txtDummy.TabIndex = 1
+    Me.txtDummy.TabIndex = 12
     Me.txtDummy.Visible = False
-    '
-    'ddNat
-    '
-    Me.ddNat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-    Me.ddNat.FormattingEnabled = True
-    Me.ddNat.Location = New System.Drawing.Point(0, 69)
-    Me.ddNat.Name = "ddNat"
-    Me.ddNat.Size = New System.Drawing.Size(120, 21)
-    Me.ddNat.TabIndex = 3
-    '
-    'Label3
-    '
-    Me.Label3.AutoSize = True
-    Me.Label3.Location = New System.Drawing.Point(127, 72)
-    Me.Label3.Name = "Label3"
-    Me.Label3.Size = New System.Drawing.Size(28, 13)
-    Me.Label3.TabIndex = 4
-    Me.Label3.Text = "port:"
     '
     'Label2
     '
     Me.Label2.AutoSize = True
     Me.Label2.Location = New System.Drawing.Point(-3, 53)
     Me.Label2.Name = "Label2"
-    Me.Label2.Size = New System.Drawing.Size(240, 13)
-    Me.Label2.TabIndex = 2
-    Me.Label2.Text = "NAT router maps port 80 TCP to local IP address:"
+    Me.Label2.Size = New System.Drawing.Size(345, 13)
+    Me.Label2.TabIndex = 14
+    Me.Label2.Text = "NAT router port mappings to this computer's local IPv4 address (above):"
     '
     'Label1
     '
@@ -111,90 +82,89 @@ Partial Class frmConfigIP
     Me.Label1.Location = New System.Drawing.Point(-3, 3)
     Me.Label1.Name = "Label1"
     Me.Label1.Size = New System.Drawing.Size(159, 13)
-    Me.Label1.TabIndex = 0
+    Me.Label1.TabIndex = 11
     Me.Label1.Text = "Public IP address of NAT router:"
-    '
-    'radDirect
-    '
-    Me.radDirect.AutoSize = True
-    Me.radDirect.Checked = True
-    Me.radDirect.Location = New System.Drawing.Point(18, 26)
-    Me.radDirect.Name = "radDirect"
-    Me.radDirect.Size = New System.Drawing.Size(148, 17)
-    Me.radDirect.TabIndex = 0
-    Me.radDirect.TabStop = True
-    Me.radDirect.Text = "Direct Internet connection"
-    Me.radDirect.UseVisualStyleBackColor = True
-    '
-    'radNAT
-    '
-    Me.radNAT.AutoSize = True
-    Me.radNAT.Location = New System.Drawing.Point(18, 111)
-    Me.radNAT.Name = "radNAT"
-    Me.radNAT.Size = New System.Drawing.Size(122, 17)
-    Me.radNAT.TabIndex = 2
-    Me.radNAT.Text = "Behind a NAT router"
-    Me.radNAT.UseVisualStyleBackColor = True
     '
     'GroupBox1
     '
     Me.GroupBox1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-    Me.GroupBox1.Controls.Add(Me.pnlDirect)
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.GroupBox1.Controls.Add(Me.chkNAT)
     Me.GroupBox1.Controls.Add(Me.pnlNAT)
-    Me.GroupBox1.Controls.Add(Me.radDirect)
-    Me.GroupBox1.Controls.Add(Me.radNAT)
-    Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
+    Me.GroupBox1.Location = New System.Drawing.Point(12, 195)
     Me.GroupBox1.Name = "GroupBox1"
     Me.GroupBox1.Padding = New System.Windows.Forms.Padding(15, 10, 15, 10)
-    Me.GroupBox1.Size = New System.Drawing.Size(292, 250)
-    Me.GroupBox1.TabIndex = 0
+    Me.GroupBox1.Size = New System.Drawing.Size(398, 179)
+    Me.GroupBox1.TabIndex = 8
     Me.GroupBox1.TabStop = False
-    Me.GroupBox1.Text = "How is this computer connected to the Internet?"
-    '
-    'pnlDirect
-    '
-    Me.pnlDirect.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-    Me.pnlDirect.Controls.Add(Me.Label4)
-    Me.pnlDirect.Controls.Add(Me.ddDirect)
-    Me.pnlDirect.Location = New System.Drawing.Point(39, 49)
-    Me.pnlDirect.Name = "pnlDirect"
-    Me.pnlDirect.Size = New System.Drawing.Size(237, 45)
-    Me.pnlDirect.TabIndex = 1
+    Me.GroupBox1.Text = "NAT Router"
     '
     'pnlNAT
     '
+    Me.pnlNAT.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.pnlNAT.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+    Me.pnlNAT.Controls.Add(Me.lblMap443)
+    Me.pnlNAT.Controls.Add(Me.txtMap443)
+    Me.pnlNAT.Controls.Add(Me.lblMap80)
     Me.pnlNAT.Controls.Add(Me.btnDetect)
     Me.pnlNAT.Controls.Add(Me.Label1)
     Me.pnlNAT.Controls.Add(Me.txtDummy)
-    Me.pnlNAT.Controls.Add(Me.txtPort)
-    Me.pnlNAT.Controls.Add(Me.ddNat)
+    Me.pnlNAT.Controls.Add(Me.txtMap80)
     Me.pnlNAT.Controls.Add(Me.Label2)
-    Me.pnlNAT.Controls.Add(Me.Label3)
     Me.pnlNAT.Enabled = False
-    Me.pnlNAT.Location = New System.Drawing.Point(39, 134)
+    Me.pnlNAT.Location = New System.Drawing.Point(37, 49)
     Me.pnlNAT.Name = "pnlNAT"
-    Me.pnlNAT.Size = New System.Drawing.Size(245, 97)
-    Me.pnlNAT.TabIndex = 3
+    Me.pnlNAT.Size = New System.Drawing.Size(344, 124)
+    Me.pnlNAT.TabIndex = 10
+    '
+    'lblMap443
+    '
+    Me.lblMap443.AutoSize = True
+    Me.lblMap443.Enabled = False
+    Me.lblMap443.Location = New System.Drawing.Point(-3, 103)
+    Me.lblMap443.Name = "lblMap443"
+    Me.lblMap443.Size = New System.Drawing.Size(245, 13)
+    Me.lblMap443.TabIndex = 17
+    Me.lblMap443.Text = "Public port 443 (HTTPS) is mapped to private port:"
+    '
+    'txtMap443
+    '
+    Me.txtMap443.Enabled = False
+    Me.txtMap443.Location = New System.Drawing.Point(245, 99)
+    Me.txtMap443.Margin = New System.Windows.Forms.Padding(0, 3, 3, 3)
+    Me.txtMap443.MaxLength = 5
+    Me.txtMap443.Name = "txtMap443"
+    Me.txtMap443.Size = New System.Drawing.Size(43, 20)
+    Me.txtMap443.TabIndex = 18
+    Me.txtMap443.Text = "443"
+    '
+    'lblMap80
+    '
+    Me.lblMap80.AutoSize = True
+    Me.lblMap80.Location = New System.Drawing.Point(-4, 77)
+    Me.lblMap80.Name = "lblMap80"
+    Me.lblMap80.Size = New System.Drawing.Size(232, 13)
+    Me.lblMap80.TabIndex = 15
+    Me.lblMap80.Text = "Public port 80 (HTTP) is mapped to private port:"
     '
     'btnDetect
     '
     Me.btnDetect.Location = New System.Drawing.Point(50, 19)
     Me.btnDetect.Name = "btnDetect"
     Me.btnDetect.Size = New System.Drawing.Size(55, 21)
-    Me.btnDetect.TabIndex = 6
+    Me.btnDetect.TabIndex = 13
     Me.btnDetect.Text = "Detect"
     Me.btnDetect.UseVisualStyleBackColor = True
     '
     'btnOK
     '
     Me.btnOK.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-    Me.btnOK.Location = New System.Drawing.Point(148, 268)
+    Me.btnOK.Location = New System.Drawing.Point(254, 380)
     Me.btnOK.Name = "btnOK"
     Me.btnOK.Size = New System.Drawing.Size(75, 23)
-    Me.btnOK.TabIndex = 1
+    Me.btnOK.TabIndex = 19
     Me.btnOK.Text = "OK"
     Me.btnOK.UseVisualStyleBackColor = True
     '
@@ -202,12 +172,112 @@ Partial Class frmConfigIP
     '
     Me.btnCancel.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel
-    Me.btnCancel.Location = New System.Drawing.Point(229, 268)
+    Me.btnCancel.Location = New System.Drawing.Point(335, 380)
     Me.btnCancel.Name = "btnCancel"
     Me.btnCancel.Size = New System.Drawing.Size(75, 23)
-    Me.btnCancel.TabIndex = 2
+    Me.btnCancel.TabIndex = 20
     Me.btnCancel.Text = "Cancel"
     Me.btnCancel.UseVisualStyleBackColor = True
+    '
+    'GroupBox2
+    '
+    Me.GroupBox2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.GroupBox2.Controls.Add(Me.chkHTTPS)
+    Me.GroupBox2.Controls.Add(Me.chkHTTP)
+    Me.GroupBox2.Location = New System.Drawing.Point(12, 12)
+    Me.GroupBox2.Name = "GroupBox2"
+    Me.GroupBox2.Size = New System.Drawing.Size(398, 78)
+    Me.GroupBox2.TabIndex = 0
+    Me.GroupBox2.TabStop = False
+    Me.GroupBox2.Text = "Protocols"
+    '
+    'chkHTTPS
+    '
+    Me.chkHTTPS.AutoSize = True
+    Me.chkHTTPS.Location = New System.Drawing.Point(18, 51)
+    Me.chkHTTPS.Name = "chkHTTPS"
+    Me.chkHTTPS.Size = New System.Drawing.Size(324, 17)
+    Me.chkHTTPS.TabIndex = 2
+    Me.chkHTTPS.Text = "HTTPS (port 443) - Requires manual binding of SSL certificates"
+    Me.chkHTTPS.UseVisualStyleBackColor = True
+    '
+    'chkHTTP
+    '
+    Me.chkHTTP.AutoSize = True
+    Me.chkHTTP.Checked = True
+    Me.chkHTTP.CheckState = System.Windows.Forms.CheckState.Checked
+    Me.chkHTTP.Location = New System.Drawing.Point(18, 28)
+    Me.chkHTTP.Name = "chkHTTP"
+    Me.chkHTTP.Size = New System.Drawing.Size(97, 17)
+    Me.chkHTTP.TabIndex = 1
+    Me.chkHTTP.Text = "HTTP (port 80)"
+    Me.chkHTTP.UseVisualStyleBackColor = True
+    '
+    'GroupBox3
+    '
+    Me.GroupBox3.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.GroupBox3.Controls.Add(Me.ddIPv6)
+    Me.GroupBox3.Controls.Add(Me.ddIPv4)
+    Me.GroupBox3.Controls.Add(Me.Label4)
+    Me.GroupBox3.Controls.Add(Me.Label3)
+    Me.GroupBox3.Location = New System.Drawing.Point(12, 96)
+    Me.GroupBox3.Name = "GroupBox3"
+    Me.GroupBox3.Size = New System.Drawing.Size(398, 93)
+    Me.GroupBox3.TabIndex = 3
+    Me.GroupBox3.TabStop = False
+    Me.GroupBox3.Text = "Listen on local IP addresses"
+    '
+    'chkNAT
+    '
+    Me.chkNAT.AutoSize = True
+    Me.chkNAT.Location = New System.Drawing.Point(18, 26)
+    Me.chkNAT.Name = "chkNAT"
+    Me.chkNAT.Size = New System.Drawing.Size(255, 17)
+    Me.chkNAT.TabIndex = 9
+    Me.chkNAT.Text = "This computer is behind a NAT router (IPv4 only)"
+    Me.chkNAT.UseVisualStyleBackColor = True
+    '
+    'Label3
+    '
+    Me.Label3.AutoSize = True
+    Me.Label3.Location = New System.Drawing.Point(15, 29)
+    Me.Label3.Name = "Label3"
+    Me.Label3.Size = New System.Drawing.Size(32, 13)
+    Me.Label3.TabIndex = 4
+    Me.Label3.Text = "IPv4:"
+    '
+    'Label4
+    '
+    Me.Label4.AutoSize = True
+    Me.Label4.Location = New System.Drawing.Point(15, 58)
+    Me.Label4.Name = "Label4"
+    Me.Label4.Size = New System.Drawing.Size(32, 13)
+    Me.Label4.TabIndex = 6
+    Me.Label4.Text = "IPv6:"
+    '
+    'ddIPv4
+    '
+    Me.ddIPv4.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.ddIPv4.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+    Me.ddIPv4.FormattingEnabled = True
+    Me.ddIPv4.Location = New System.Drawing.Point(53, 25)
+    Me.ddIPv4.Name = "ddIPv4"
+    Me.ddIPv4.Size = New System.Drawing.Size(328, 21)
+    Me.ddIPv4.TabIndex = 5
+    '
+    'ddIPv6
+    '
+    Me.ddIPv6.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.ddIPv6.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+    Me.ddIPv6.FormattingEnabled = True
+    Me.ddIPv6.Location = New System.Drawing.Point(53, 55)
+    Me.ddIPv6.Name = "ddIPv6"
+    Me.ddIPv6.Size = New System.Drawing.Size(328, 21)
+    Me.ddIPv6.TabIndex = 7
     '
     'frmConfigIP
     '
@@ -215,41 +285,49 @@ Partial Class frmConfigIP
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
     Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
     Me.CancelButton = Me.btnCancel
-    Me.ClientSize = New System.Drawing.Size(316, 303)
+    Me.ClientSize = New System.Drawing.Size(422, 415)
+    Me.Controls.Add(Me.GroupBox3)
+    Me.Controls.Add(Me.GroupBox2)
+    Me.Controls.Add(Me.GroupBox1)
     Me.Controls.Add(Me.btnCancel)
     Me.Controls.Add(Me.btnOK)
-    Me.Controls.Add(Me.GroupBox1)
     Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
     Me.MaximizeBox = False
     Me.MinimizeBox = False
     Me.Name = "frmConfigIP"
     Me.ShowInTaskbar = False
     Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
-    Me.Text = "IP address / port"
+    Me.Text = "Protocols / IP addresses / NAT"
     Me.GroupBox1.ResumeLayout(False)
     Me.GroupBox1.PerformLayout()
-    Me.pnlDirect.ResumeLayout(False)
-    Me.pnlDirect.PerformLayout()
     Me.pnlNAT.ResumeLayout(False)
     Me.pnlNAT.PerformLayout()
+    Me.GroupBox2.ResumeLayout(False)
+    Me.GroupBox2.PerformLayout()
+    Me.GroupBox3.ResumeLayout(False)
+    Me.GroupBox3.PerformLayout()
     Me.ResumeLayout(False)
 
   End Sub
-  Friend WithEvents ddDirect As System.Windows.Forms.ComboBox
-  Friend WithEvents Label4 As System.Windows.Forms.Label
-  Friend WithEvents txtPort As System.Windows.Forms.TextBox
+  Friend WithEvents txtMap80 As System.Windows.Forms.TextBox
   Friend WithEvents txtDummy As System.Windows.Forms.TextBox
-  Friend WithEvents ddNat As System.Windows.Forms.ComboBox
-  Friend WithEvents Label3 As System.Windows.Forms.Label
   Friend WithEvents Label2 As System.Windows.Forms.Label
   Friend WithEvents Label1 As System.Windows.Forms.Label
-  Friend WithEvents radDirect As System.Windows.Forms.RadioButton
-  Friend WithEvents radNAT As System.Windows.Forms.RadioButton
   Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
   Friend WithEvents btnOK As System.Windows.Forms.Button
   Friend WithEvents btnCancel As System.Windows.Forms.Button
   Friend WithEvents pnlNAT As System.Windows.Forms.Panel
-  Friend WithEvents pnlDirect As System.Windows.Forms.Panel
   Friend WithEvents btnDetect As System.Windows.Forms.Button
-
+  Friend WithEvents lblMap443 As Label
+  Friend WithEvents txtMap443 As TextBox
+  Friend WithEvents lblMap80 As Label
+  Friend WithEvents GroupBox2 As GroupBox
+  Friend WithEvents chkHTTPS As CheckBox
+  Friend WithEvents chkHTTP As CheckBox
+  Friend WithEvents GroupBox3 As GroupBox
+  Friend WithEvents chkNAT As CheckBox
+  Friend WithEvents ddIPv6 As ComboBox
+  Friend WithEvents ddIPv4 As ComboBox
+  Friend WithEvents Label4 As Label
+  Friend WithEvents Label3 As Label
 End Class

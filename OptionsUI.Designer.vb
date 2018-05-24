@@ -22,45 +22,32 @@ Partial Class OptionsUI
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-    Me.Label6 = New System.Windows.Forms.Label
-    Me.lblIPPort = New System.Windows.Forms.Label
-    Me.btnConfigIP = New System.Windows.Forms.Button
-    Me.Label2 = New System.Windows.Forms.Label
-    Me.Label1 = New System.Windows.Forms.Label
-    Me.lblDefault = New System.Windows.Forms.Label
-    Me.btnConfigDef = New System.Windows.Forms.Button
-    Me.lstDoms = New AERListBoxMC
-    Me.ColumnHeader1 = New System.Windows.Forms.ColumnHeader
-    Me.ColumnHeader2 = New System.Windows.Forms.ColumnHeader
+    Me.Label6 = New System.Windows.Forms.Label()
+    Me.btnConfigIP = New System.Windows.Forms.Button()
+    Me.Label2 = New System.Windows.Forms.Label()
+    Me.Label1 = New System.Windows.Forms.Label()
+    Me.lblDefault = New System.Windows.Forms.Label()
+    Me.btnConfigDef = New System.Windows.Forms.Button()
+    Me.lstListen = New System.Windows.Forms.ListBox()
+    Me.lstDoms = New AERListBoxMC()
+    Me.ColumnHeader1 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+    Me.ColumnHeader2 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
     Me.SuspendLayout()
     '
     'Label6
     '
     Me.Label6.AutoSize = True
-    Me.Label6.Location = New System.Drawing.Point(-3, 94)
+    Me.Label6.Location = New System.Drawing.Point(-3, 132)
     Me.Label6.Margin = New System.Windows.Forms.Padding(3, 13, 3, 0)
     Me.Label6.Name = "Label6"
     Me.Label6.Size = New System.Drawing.Size(107, 13)
     Me.Label6.TabIndex = 6
     Me.Label6.Text = "Redirect host names:"
     '
-    'lblIPPort
-    '
-    Me.lblIPPort.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-    Me.lblIPPort.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-    Me.lblIPPort.Location = New System.Drawing.Point(0, 13)
-    Me.lblIPPort.Margin = New System.Windows.Forms.Padding(0, 0, 3, 0)
-    Me.lblIPPort.Name = "lblIPPort"
-    Me.lblIPPort.Padding = New System.Windows.Forms.Padding(1, 3, 3, 3)
-    Me.lblIPPort.Size = New System.Drawing.Size(322, 21)
-    Me.lblIPPort.TabIndex = 1
-    Me.lblIPPort.Text = "Not configured"
-    '
     'btnConfigIP
     '
     Me.btnConfigIP.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-    Me.btnConfigIP.Location = New System.Drawing.Point(328, 13)
+    Me.btnConfigIP.Location = New System.Drawing.Point(328, 15)
     Me.btnConfigIP.Margin = New System.Windows.Forms.Padding(3, 0, 3, 0)
     Me.btnConfigIP.Name = "btnConfigIP"
     Me.btnConfigIP.Size = New System.Drawing.Size(65, 21)
@@ -73,14 +60,14 @@ Partial Class OptionsUI
     Me.Label2.AutoSize = True
     Me.Label2.Location = New System.Drawing.Point(-3, 0)
     Me.Label2.Name = "Label2"
-    Me.Label2.Size = New System.Drawing.Size(225, 13)
+    Me.Label2.Size = New System.Drawing.Size(158, 13)
     Me.Label2.TabIndex = 0
-    Me.Label2.Text = "Listen for HTTP requests on IP address / port:"
+    Me.Label2.Text = "Protocols / IP addresses / Ports"
     '
     'Label1
     '
     Me.Label1.AutoSize = True
-    Me.Label1.Location = New System.Drawing.Point(-3, 47)
+    Me.Label1.Location = New System.Drawing.Point(-3, 85)
     Me.Label1.Margin = New System.Windows.Forms.Padding(3, 13, 3, 0)
     Me.Label1.Name = "Label1"
     Me.Label1.Size = New System.Drawing.Size(82, 13)
@@ -90,9 +77,9 @@ Partial Class OptionsUI
     'lblDefault
     '
     Me.lblDefault.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.lblDefault.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-    Me.lblDefault.Location = New System.Drawing.Point(0, 60)
+    Me.lblDefault.Location = New System.Drawing.Point(0, 98)
     Me.lblDefault.Margin = New System.Windows.Forms.Padding(0, 0, 3, 0)
     Me.lblDefault.Name = "lblDefault"
     Me.lblDefault.Padding = New System.Windows.Forms.Padding(1, 3, 3, 3)
@@ -103,22 +90,33 @@ Partial Class OptionsUI
     'btnConfigDef
     '
     Me.btnConfigDef.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-    Me.btnConfigDef.Location = New System.Drawing.Point(328, 60)
+    Me.btnConfigDef.Location = New System.Drawing.Point(328, 98)
     Me.btnConfigDef.Name = "btnConfigDef"
     Me.btnConfigDef.Size = New System.Drawing.Size(65, 21)
     Me.btnConfigDef.TabIndex = 5
     Me.btnConfigDef.Text = "Set..."
     Me.btnConfigDef.UseVisualStyleBackColor = True
     '
+    'lstListen
+    '
+    Me.lstListen.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.lstListen.FormattingEnabled = True
+    Me.lstListen.Location = New System.Drawing.Point(0, 15)
+    Me.lstListen.Name = "lstListen"
+    Me.lstListen.SelectionMode = System.Windows.Forms.SelectionMode.None
+    Me.lstListen.Size = New System.Drawing.Size(322, 56)
+    Me.lstListen.TabIndex = 1
+    '
     'lstDoms
     '
     Me.lstDoms.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.lstDoms.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader1, Me.ColumnHeader2})
-    Me.lstDoms.Location = New System.Drawing.Point(0, 110)
+    Me.lstDoms.Location = New System.Drawing.Point(0, 148)
     Me.lstDoms.Name = "lstDoms"
-    Me.lstDoms.Size = New System.Drawing.Size(393, 107)
+    Me.lstDoms.Size = New System.Drawing.Size(393, 131)
     Me.lstDoms.Sortable = True
     Me.lstDoms.TabIndex = 7
     '
@@ -136,22 +134,21 @@ Partial Class OptionsUI
     '
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
     Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+    Me.Controls.Add(Me.lstListen)
     Me.Controls.Add(Me.btnConfigDef)
     Me.Controls.Add(Me.lblDefault)
     Me.Controls.Add(Me.btnConfigIP)
-    Me.Controls.Add(Me.lblIPPort)
     Me.Controls.Add(Me.Label1)
     Me.Controls.Add(Me.lstDoms)
     Me.Controls.Add(Me.Label2)
     Me.Controls.Add(Me.Label6)
     Me.Name = "OptionsUI"
-    Me.Size = New System.Drawing.Size(393, 217)
+    Me.Size = New System.Drawing.Size(393, 282)
     Me.ResumeLayout(False)
     Me.PerformLayout()
 
   End Sub
   Friend WithEvents Label6 As System.Windows.Forms.Label
-  Friend WithEvents lblIPPort As System.Windows.Forms.Label
   Friend WithEvents btnConfigIP As System.Windows.Forms.Button
   Friend WithEvents Label2 As System.Windows.Forms.Label
   Friend WithEvents lstDoms As AERListBoxMC
@@ -160,5 +157,5 @@ Partial Class OptionsUI
   Friend WithEvents Label1 As System.Windows.Forms.Label
   Friend WithEvents lblDefault As System.Windows.Forms.Label
   Friend WithEvents btnConfigDef As System.Windows.Forms.Button
-
+  Friend WithEvents lstListen As ListBox
 End Class

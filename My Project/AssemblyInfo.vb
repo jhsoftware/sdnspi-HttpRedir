@@ -11,14 +11,14 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyTitle("HTTP Redirector Plug-In")> 
 <Assembly: AssemblyDescription("HTTP Redirector Plug-In")> 
 <Assembly: AssemblyCompany("JH Software ApS")> 
-<Assembly: AssemblyProduct("Simple DNS Plus")> 
-<Assembly: AssemblyCopyright("Copyright © 2008-2009 JH Software ApS")> 
+<Assembly: AssemblyProduct("Simple DNS Plus")>
+<Assembly: AssemblyCopyright("Copyright © 2008-2018 JH Software ApS")>
 <Assembly: AssemblyTrademark("Simple DNS Plus")> 
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("12ed5b4d-e962-473d-8ed5-821d5d77d544")> 
+<Assembly: Guid("12ed5b4d-e962-473d-8ed5-821d5d77d544")>
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("5.2.10.0")> 
-<Assembly: AssemblyFileVersion("5.2.10.0")> 
+<Assembly: AssemblyVersion("5.2.11.0")>
+<Assembly: AssemblyFileVersion("5.2.11.0")>

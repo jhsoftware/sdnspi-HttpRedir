@@ -3,57 +3,70 @@
 Public Class frmConfigIP
 
   Public WithEvents IPCtrl As Control
-  Friend ServerIPs As List(Of JHSoftware.SimpleDNS.Plugin.OptionsUI.IPandSubnet)
 
-  Friend Sub LoadDefaults()
-    Dim AllPrivate As Boolean = True
-    For Each ipsn In ServerIPs
-      REM only IPv4
-      If ipsn.IPAddr.IPVersion <> 4 Then Continue For
-      REM no loopback - won't happen
-      '      If ipsn.IPAddr = JHSoftware.SimpleDNS.Plugin.IPAddressV4.Loopback Then Continue For
-      ddDirect.Items.Add(ipsn.IPAddr)
-      ddNat.Items.Add(ipsn.IPAddr)
-      If IPisPrivate(DirectCast(ipsn.IPAddr, JHSoftware.SimpleDNS.Plugin.IPAddressV4)) Then
-        If ddNat.SelectedIndex < 0 Then ddNat.SelectedIndex = ddNat.Items.Count - 1
-      Else
-        AllPrivate = False
-        If ddDirect.SelectedIndex < 0 Then ddDirect.SelectedIndex = ddDirect.Items.Count - 1
-      End If
-    Next
-    If ddDirect.Items.Count > 0 AndAlso ddDirect.SelectedIndex < 0 Then ddDirect.SelectedIndex = 0
-    If ddNat.Items.Count > 0 AndAlso ddNat.SelectedIndex < 0 Then ddNat.SelectedIndex = 0
-    If AllPrivate Then radNAT.Checked = True
-  End Sub
-
-  Private Sub frmConfigIP_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+  Friend Sub LoadConfig(sender As OptionsUI, cfg As MyConfig)
+    REM setup form
+    IPCtrl = sender.GetIPCtrl(True, False)
     pnlNAT.Controls.Add(IPCtrl)
     IPCtrl.Location = txtDummy.Location
     IPCtrl.TabIndex = txtDummy.TabIndex
     btnDetect.Left = IPCtrl.Right + 6
+
+    REM load local ip addresses
+    ddIPv4.Items.Clear()
+    ddIPv4.Items.Add("None")
+    ddIPv4.SelectedIndex = 0
+    ddIPv6.Items.Clear()
+    ddIPv6.Items.Add("None")
+    ddIPv6.SelectedIndex = 0
+    For Each ipsn In sender.GetServerIPs()
+      If ipsn.IPAddr.IPVersion = 4 Then ddIPv4.Items.Add(ipsn.IPAddr) Else ddIPv6.Items.Add(ipsn.IPAddr)
+    Next
+
+    REM load configuration
+    chkHTTP.Checked = cfg.ProtoHTTP
+    chkHTTPS.Checked = cfg.ProtoHTTPS
+    If cfg.BindIPv4 IsNot Nothing Then
+      For i = 1 To ddIPv4.Items.Count - 1
+        If cfg.BindIPv4 = DirectCast(ddIPv4.Items(i), Plugin.IPAddress) Then ddIPv4.SelectedIndex = i : Exit For
+      Next
+    End If
+    If cfg.BindIPv6 IsNot Nothing Then
+      For i = 1 To ddIPv6.Items.Count - 1
+        If cfg.BindIPv6 = DirectCast(ddIPv6.Items(i), Plugin.IPAddress) Then ddIPv6.SelectedIndex = i : Exit For
+      Next
+    End If
+    If cfg.NatIP IsNot Nothing Then
+      chkNAT.Checked = True
+      IPCtrl.Text = cfg.NatIP.ToString
+      txtMap80.Text = cfg.NatMap80.ToString
+      txtMap443.Text = cfg.NatMap443.ToString
+    End If
   End Sub
 
-  Private Sub radDirect_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles radDirect.CheckedChanged, radNAT.CheckedChanged
-    pnlDirect.Enabled = (radDirect.Checked)
-    pnlNAT.Enabled = (radNAT.Checked)
-  End Sub
+  Friend Sub SaveConfig(cfg As MyConfig)
+    cfg.ProtoHTTP = chkHTTP.Checked
+    cfg.ProtoHTTPS = chkHTTPS.Checked
 
-  Private Function IPisPrivate(ByVal ip As JHSoftware.SimpleDNS.Plugin.IPAddressV4) As Boolean
-    Dim ba = ip.GetBytes
-    If ba(0) = 10 Then Return True
-    If ba(0) = 172 And ba(1) >= 16 And ba(1) <= 31 Then Return True
-    If ba(0) = 192 And ba(1) = 168 Then Return True
-    If ba(0) = 169 And ba(1) = 254 Then Return True
-    Return False
-  End Function
+    cfg.BindIPv4 = If(ddIPv4.SelectedIndex > 0, DirectCast(ddIPv4.SelectedItem, Plugin.IPAddressV4), Nothing)
+    cfg.BindIPv6 = If(ddIPv6.SelectedIndex > 0, DirectCast(ddIPv6.SelectedItem, Plugin.IPAddressV6), Nothing)
+
+    If chkNAT.Checked Then
+      cfg.NatIP = Plugin.IPAddressV4.Parse(IPCtrl.Text.Trim)
+      Integer.TryParse(txtMap80.Text.Trim, cfg.NatMap80)
+      Integer.TryParse(txtMap443.Text.Trim, cfg.NatMap443)
+    Else
+      cfg.NatIP = Nothing
+    End If
+  End Sub
 
   Private Sub btnDetect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnDetect.Click
     Me.Cursor = Cursors.WaitCursor
     Application.DoEvents()
     Dim wc As New System.Net.WebClient
-    Dim ip As JHSoftware.SimpleDNS.Plugin.IPAddressV4
+    Dim ip As Plugin.IPAddressV4
     Try
-      ip = JHSoftware.SimpleDNS.Plugin.IPAddressV4.Parse(wc.DownloadString("http://www.whatismyip.com/automation/n09230945.asp"))
+      ip = Plugin.IPAddressV4.Parse(wc.DownloadString("http://ipecho.net/plain"))
       If ip.IPVersion <> 4 Then Throw New Exception
     Catch
       Me.Cursor = Cursors.Default
@@ -65,20 +78,47 @@ Public Class frmConfigIP
   End Sub
 
   Private Sub btnOK_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOK.Click
-    Dim ip As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
-    Dim port As Integer
-    If radDirect.Checked Then
-      If ddDirect.SelectedIndex < 0 Then MessageBox.Show("No IP address is seleted", "IP / Port", MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
-    Else
-      If IPCtrl.Text.Trim.Length = 0 Then MessageBox.Show("Public IP address cannot be blank", "IP / Port", MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
-      If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(IPCtrl.Text.Trim, ip) OrElse _
-         ip.IPVersion <> 4 Then MessageBox.Show("Invalid public IP address", "IP / Port", MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
-      If ddNat.SelectedIndex < 0 Then MessageBox.Show("No local IP address is seleted", "IP / Port", MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
-      If Not Integer.TryParse(txtPort.Text.Trim, port) OrElse _
-         (port < 1 Or port > 65535) Then MessageBox.Show("Invalid local port number", "IP / Port", MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+    REM protocols
+    If Not chkHTTP.Checked AndAlso Not chkHTTPS.Checked Then MessageBox.Show("No protocol seleted", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+
+    REM listen on IPs
+    If ddIPv4.SelectedIndex = 0 AndAlso ddIPv6.SelectedIndex = 0 Then MessageBox.Show("No Listen on local IP address seleted", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+
+    REM connection
+    If chkNAT.Checked Then
+      If ddIPv4.SelectedIndex = 0 Then MessageBox.Show("When behind a NAT router, a local IPv4 address must be selected", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+      If IPCtrl.Text.Trim.Length = 0 Then MessageBox.Show("Public IP address of NAT router cannot be blank", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+      Dim ip As Plugin.IPAddress = Nothing
+      If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(IPCtrl.Text.Trim, ip) OrElse
+         ip.IPVersion <> 4 Then MessageBox.Show("Invalid public IP address of NAT router", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+      Dim port1, port2 As Integer
+      If chkHTTP.Checked Then
+        If Not Integer.TryParse(txtMap80.Text.Trim, port1) OrElse
+         (port1 < 1 Or port1 > 65535) Then MessageBox.Show("Invalid NAT port 80 map port number", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+      End If
+      If chkHTTPS.Checked Then
+        If Not Integer.TryParse(txtMap443.Text.Trim, port2) OrElse
+         (port2 < 1 Or port2 > 65535) Then MessageBox.Show("Invalid NAT port 443 map port number", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+      End If
+      If chkHTTP.Checked AndAlso chkHTTPS.Checked AndAlso port1 = port2 Then MessageBox.Show("NAT mapped ports cannot be the same", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
     End If
+
     DialogResult = Windows.Forms.DialogResult.OK
     Me.Close()
+    End Sub
+
+  Private Sub chkHTTP_CheckedChanged(sender As Object, e As EventArgs) Handles chkHTTP.CheckedChanged, chkHTTPS.CheckedChanged
+    lblMap80.Enabled = chkHTTP.Checked
+    txtMap80.Enabled = chkHTTP.Checked
+    lblMap443.Enabled = chkHTTPS.Checked
+    txtMap443.Enabled = chkHTTPS.Checked
   End Sub
 
+  Private Sub chkNAT_CheckedChanged(sender As Object, e As EventArgs) Handles chkNAT.CheckedChanged
+    pnlNAT.Enabled = (chkNAT.Checked)
+  End Sub
+
+  Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
+
+  End Sub
 End Class

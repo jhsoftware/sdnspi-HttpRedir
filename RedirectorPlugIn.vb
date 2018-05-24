@@ -20,19 +20,20 @@ Public Class RedirectorPlugIn
 
 #Region "read only properties"
 
-  Public Function GetPlugInTypeInfo() As JHSoftware.SimpleDNS.Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetPlugInTypeInfo
+  Public Function GetPlugInTypeInfo() As Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetPlugInTypeInfo
     With GetPlugInTypeInfo
       .Name = "HTTP Redirector"
       .Description = "Redirects HTTP requests to another URL / port"
-      .InfoURL = "http://www.simpledns.com/kb.aspx?kbid=1258"
+      .InfoURL = "https://simpledns.com/plugin-httpredir"
       .ConfigFile = False
     End With
   End Function
 
-  Public Function GetDNSAskAbout() As JHSoftware.SimpleDNS.Plugin.DNSAskAboutGH Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.GetDNSAskAbout
-    With GetDNSAskAbout
-      .ForwardIPv4 = True
-    End With
+  Public Function GetDNSAskAbout() As Plugin.DNSAskAboutGH Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.GetDNSAskAbout
+    Dim rv = New Plugin.DNSAskAboutGH
+    rv.ForwardIPv4 = (Cfg.BindIPv4 IsNot Nothing)
+    rv.ForwardIPv6 = (Cfg.BindIPv6 IsNot Nothing)
+    Return rv
   End Function
 
 #End Region
@@ -54,12 +55,14 @@ Public Class RedirectorPlugIn
 #End Region
 
 #Region "other methods"
+  Shared RecTypeAAAA As DNSRRType = DNSRRType.Parse("AAAA")
+
   Public Sub Lookup(ByVal req As IDNSRequest, ByRef resultIP As IPAddress, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.Lookup
     Dim lookupName = req.QName
     Dim sc = lookupName.SegmentCount
     If sc < MinSegCount Then Exit Sub
     If sc <= MaxSegCount AndAlso Cfg.Redirs.ContainsKey(lookupName) Then
-      resultIP = Cfg.PublicIP
+      resultIP = Cfg.DnsIP(req.QType = RecTypeAAAA)
       resultTTL = 5
       Exit Sub
     End If
@@ -68,7 +71,7 @@ Public Class RedirectorPlugIn
       lookupName = lookupName.Parent
       sc -= 1
       If DomsWithSub.ContainsKey(lookupName) Then
-        resultIP = Cfg.PublicIP
+        resultIP = Cfg.DnsIP(req.QType = RecTypeAAAA)
         resultTTL = 5
         Exit Sub
       End If
@@ -82,10 +85,11 @@ Public Class RedirectorPlugIn
   Public Function InstanceConflict(ByVal config1 As String, ByVal config2 As String, ByRef errorMsg As String) As Boolean Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.InstanceConflict
     Dim cfg1 = MyConfig.LoadFromXML(config1)
     Dim cfg2 = MyConfig.LoadFromXML(config2)
-    If cfg1.BindIP.Equals(cfg2.BindIP) AndAlso cfg1.BindPort = cfg2.BindPort Then
-      errorMsg = "Another HTTP Redirector plug-in uses the same IP address / port"
-      Return True
-    End If
+    For Each bnd1 In cfg1.GetBindings
+      For Each bnd2 In cfg2.GetBindings
+        If bnd1.BindIP = bnd2.BindIP AndAlso bnd1.BindPort = bnd2.BindPort Then errorMsg = "Another HTTP Redirector plug-in uses the same IP address / port" : Return True
+      Next
+    Next
     Return False
   End Function
 
@@ -109,16 +113,29 @@ Public Class RedirectorPlugIn
     Try
       Listener = New System.Net.HttpListener
       Listener.IgnoreWriteExceptions = True
-      Listener.Prefixes.Add("http://" & Cfg.BindIP.ToString & ":" & Cfg.BindPort & "/")
-      Listener.Start()
     Catch ex As Exception
-      RaiseEvent LogLine("HTTP listener not started - Error: " & ex.Message)
+      RaiseEvent LogLine("Could not initiate HTTP listener - Error: " & ex.Message)
       Exit Sub
     End Try
 
-    Listener.BeginGetContext(AddressOf ListenerCallBack, Listener)
+    For Each pfx In Cfg.GetBindings
+      Try
+        Listener.Prefixes.Add(pfx.Prefix)
+      Catch ex As Exception
+        RaiseEvent LogLine("Could not add HTTP listener prefix " & pfx.Prefix & " - Error: " & ex.Message)
+        Exit Sub
+      End Try
+    Next
 
-    RaiseEvent LogLine("Listening for HTTP requests on " & Cfg.BindIP.ToString & " port " & Cfg.BindPort)
+    Try
+      Listener.Start()
+      Listener.BeginGetContext(AddressOf ListenerCallBack, Listener)
+    Catch ex As Exception
+      RaiseEvent LogLine("Could not start HTTP listener - Error: " & ex.Message)
+      Exit Sub
+    End Try
+
+    RaiseEvent LogLine("Listening for HTTP requests")
   End Sub
 
   Public Sub StopService() Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.StopService
