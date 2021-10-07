@@ -2,15 +2,9 @@
 
 Public Class frmConfigIP
 
-  Public WithEvents IPCtrl As Control
-
   Friend Sub LoadConfig(sender As OptionsUI, cfg As MyConfig)
     REM setup form
-    IPCtrl = sender.GetIPCtrl(True, False)
     pnlNAT.Controls.Add(IPCtrl)
-    IPCtrl.Location = txtDummy.Location
-    IPCtrl.TabIndex = txtDummy.TabIndex
-    btnDetect.Left = IPCtrl.Right + 6
 
     REM load local ip addresses
     ddIPv4.Items.Clear()
@@ -28,12 +22,12 @@ Public Class frmConfigIP
     chkHTTPS.Checked = cfg.ProtoHTTPS
     If cfg.BindIPv4 IsNot Nothing Then
       For i = 1 To ddIPv4.Items.Count - 1
-        If cfg.BindIPv4 = DirectCast(ddIPv4.Items(i), Plugin.IPAddress) Then ddIPv4.SelectedIndex = i : Exit For
+        If cfg.BindIPv4 = DirectCast(ddIPv4.Items(i), SdnsIP) Then ddIPv4.SelectedIndex = i : Exit For
       Next
     End If
     If cfg.BindIPv6 IsNot Nothing Then
       For i = 1 To ddIPv6.Items.Count - 1
-        If cfg.BindIPv6 = DirectCast(ddIPv6.Items(i), Plugin.IPAddress) Then ddIPv6.SelectedIndex = i : Exit For
+        If cfg.BindIPv6 = DirectCast(ddIPv6.Items(i), SdnsIP) Then ddIPv6.SelectedIndex = i : Exit For
       Next
     End If
     If cfg.NatIP IsNot Nothing Then
@@ -48,11 +42,11 @@ Public Class frmConfigIP
     cfg.ProtoHTTP = chkHTTP.Checked
     cfg.ProtoHTTPS = chkHTTPS.Checked
 
-    cfg.BindIPv4 = If(ddIPv4.SelectedIndex > 0, DirectCast(ddIPv4.SelectedItem, Plugin.IPAddressV4), Nothing)
-    cfg.BindIPv6 = If(ddIPv6.SelectedIndex > 0, DirectCast(ddIPv6.SelectedItem, Plugin.IPAddressV6), Nothing)
+    cfg.BindIPv4 = If(ddIPv4.SelectedIndex > 0, DirectCast(ddIPv4.SelectedItem, SdnsIPv4), Nothing)
+    cfg.BindIPv6 = If(ddIPv6.SelectedIndex > 0, DirectCast(ddIPv6.SelectedItem, SdnsIPv6), Nothing)
 
     If chkNAT.Checked Then
-      cfg.NatIP = Plugin.IPAddressV4.Parse(IPCtrl.Text.Trim)
+      cfg.NatIP = SdnsIPv4.Parse(IPCtrl.Text.Trim)
       Integer.TryParse(txtMap80.Text.Trim, cfg.NatMap80)
       Integer.TryParse(txtMap443.Text.Trim, cfg.NatMap443)
     Else
@@ -64,9 +58,9 @@ Public Class frmConfigIP
     Me.Cursor = Cursors.WaitCursor
     Application.DoEvents()
     Dim wc As New System.Net.WebClient
-    Dim ip As Plugin.IPAddressV4
+    Dim ip As SdnsIPv4
     Try
-      ip = Plugin.IPAddressV4.Parse(wc.DownloadString("http://ipecho.net/plain"))
+      ip = SdnsIPv4.Parse(wc.DownloadString("http://ipecho.net/plain"))
       If ip.IPVersion <> 4 Then Throw New Exception
     Catch
       Me.Cursor = Cursors.Default
@@ -88,8 +82,8 @@ Public Class frmConfigIP
     If chkNAT.Checked Then
       If ddIPv4.SelectedIndex = 0 Then MessageBox.Show("When behind a NAT router, a local IPv4 address must be selected", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
       If IPCtrl.Text.Trim.Length = 0 Then MessageBox.Show("Public IP address of NAT router cannot be blank", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
-      Dim ip As Plugin.IPAddress = Nothing
-      If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(IPCtrl.Text.Trim, ip) OrElse
+      Dim ip As SdnsIPv4 = Nothing
+      If Not SdnsIPv4.TryParse(IPCtrl.Text.Trim, ip) OrElse
          ip.IPVersion <> 4 Then MessageBox.Show("Invalid public IP address of NAT router", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
       Dim port1, port2 As Integer
       If chkHTTP.Checked Then

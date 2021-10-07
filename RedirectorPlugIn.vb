@@ -1,22 +1,19 @@
 ﻿Imports JHSoftware.SimpleDNS.Plugin
 
 Public Class RedirectorPlugIn
-  Implements IGetHostPlugIn
+  Implements ILookupHost
+  Implements IOptionsUI
 
   Private Cfg As MyConfig
   Private MinSegCount As Integer
   Private MaxSegCount As Integer
-  Private DomsWithSub As Dictionary(Of DomainName, MyConfig.HNRedir)
+  Private DomsWithSub As Dictionary(Of DomName, MyConfig.HNRedir)
 
   Private IsStopping As Boolean
 
   Private Listener As System.Net.HttpListener
 
-#Region "events"
-  Public Event LogLine(ByVal text As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LogLine
-  Public Event AsyncError(ByVal ex As System.Exception) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.AsyncError
-  Public Event SaveConfig(ByVal config As String) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.SaveConfig
-#End Region
+  Public Property Host As IHost Implements IPlugInBase.Host
 
 #Region "read only properties"
 
@@ -24,27 +21,13 @@ Public Class RedirectorPlugIn
     With GetPlugInTypeInfo
       .Name = "HTTP Redirector"
       .Description = "Redirects HTTP requests to another URL / port"
-      .InfoURL = "https://simpledns.com/plugin-httpredir"
-      .ConfigFile = False
+      .InfoURL = "https://simpledns.plus/kb/179/http-redirector-plug-in"
     End With
-  End Function
-
-  Public Function GetDNSAskAbout() As Plugin.DNSAskAboutGH Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.GetDNSAskAbout
-    Dim rv = New Plugin.DNSAskAboutGH
-    rv.ForwardIPv4 = (Cfg.BindIPv4 IsNot Nothing)
-    rv.ForwardIPv6 = (Cfg.BindIPv6 IsNot Nothing)
-    Return rv
   End Function
 
 #End Region
 
 #Region "not implemented"
-  Public Sub LookupReverse(ByVal req As IDNSRequest, ByRef resultName As JHSoftware.SimpleDNS.Plugin.DomainName, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.LookupReverse
-  End Sub
-
-  Public Sub LookupTXT(ByVal req As IDNSRequest, ByRef resultText As String, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.LookupTXT
-  End Sub
-
   Public Sub LoadState(ByVal state As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadState
   End Sub
 
@@ -55,30 +38,35 @@ Public Class RedirectorPlugIn
 #End Region
 
 #Region "other methods"
-  Shared RecTypeAAAA As DNSRRType = DNSRRType.Parse("AAAA")
 
-  Public Sub Lookup(ByVal req As IDNSRequest, ByRef resultIP As IPAddress, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.Lookup
+  Public Function Lookup(ByVal req As IDNSRequest) As Threading.Tasks.Task(Of LookupResult(Of SdnsIP)) Implements JHSoftware.SimpleDNS.Plugin.ILookupHost.LookupHost
+    Return Threading.Tasks.Task.FromResult(Lookup2(req))
+  End Function
+  Private Function Lookup2(ByVal req As IDNSRequest) As LookupResult(Of SdnsIP)
+    If req.QType = DNSRecType.A Then
+      If Cfg.BindIPv4 Is Nothing Then Return Nothing
+    Else
+      If Cfg.BindIPv6 Is Nothing Then Return Nothing
+    End If
+
     Dim lookupName = req.QName
     Dim sc = lookupName.SegmentCount
-    If sc < MinSegCount Then Exit Sub
+    If sc < MinSegCount Then Return Nothing
     If sc <= MaxSegCount AndAlso Cfg.Redirs.ContainsKey(lookupName) Then
-      resultIP = Cfg.DnsIP(req.QType = RecTypeAAAA)
-      resultTTL = 5
-      Exit Sub
+      Return New LookupResult(Of SdnsIP) With {.Value = Cfg.DnsIP(req.QType = DNSRecType.AAAA), .TTL = 5}
     End If
-    If DomsWithSub.Count = 0 Then Exit Sub
+    If DomsWithSub.Count = 0 Then Return Nothing
     While sc > MinSegCount
       lookupName = lookupName.Parent
       sc -= 1
       If DomsWithSub.ContainsKey(lookupName) Then
-        resultIP = Cfg.DnsIP(req.QType = RecTypeAAAA)
-        resultTTL = 5
-        Exit Sub
+        Return New LookupResult(Of SdnsIP) With {.Value = Cfg.DnsIP(req.QType = DNSRecType.AAAA), .TTL = 5}
       End If
     End While
-  End Sub
+    Return Nothing
+  End Function
 
-  Public Function GetOptionsUI(ByVal instanceID As Guid, ByVal dataPath As String) As JHSoftware.SimpleDNS.Plugin.OptionsUI Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetOptionsUI
+  Public Function GetOptionsUI(ByVal instanceID As Guid, ByVal dataPath As String) As JHSoftware.SimpleDNS.Plugin.OptionsUI Implements JHSoftware.SimpleDNS.Plugin.IOptionsUI.GetOptionsUI
     Return New OptionsUI
   End Function
 
@@ -93,11 +81,11 @@ Public Class RedirectorPlugIn
     Return False
   End Function
 
-  Public Sub LoadConfig(ByVal config As String, ByVal instanceID As Guid, ByVal dataPath As String, ByRef maxThreads As Integer) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadConfig
+  Public Sub LoadConfig(ByVal config As String, ByVal instanceID As Guid, ByVal dataPath As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadConfig
     Cfg = MyConfig.LoadFromXML(config)
     MinSegCount = 9999
     MaxSegCount = 0
-    DomsWithSub = New Dictionary(Of DomainName, MyConfig.HNRedir)
+    DomsWithSub = New Dictionary(Of DomName, MyConfig.HNRedir)
     Dim sc As Integer
     For Each dom In Cfg.Redirs.Values
       If dom.SubDoms Then DomsWithSub.Add(dom.Name, dom)
@@ -107,23 +95,23 @@ Public Class RedirectorPlugIn
     Next
   End Sub
 
-  Public Sub StartService() Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.StartService
+  Public Async Function StartService() As Threading.Tasks.Task Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.StartService
     IsStopping = False
 
     Try
       Listener = New System.Net.HttpListener
       Listener.IgnoreWriteExceptions = True
     Catch ex As Exception
-      RaiseEvent LogLine("Could not initiate HTTP listener - Error: " & ex.Message)
-      Exit Sub
+      Host.LogLine("Could not initiate HTTP listener - Error: " & ex.Message)
+      Exit Function
     End Try
 
     For Each pfx In Cfg.GetBindings
       Try
         Listener.Prefixes.Add(pfx.Prefix)
       Catch ex As Exception
-        RaiseEvent LogLine("Could not add HTTP listener prefix " & pfx.Prefix & " - Error: " & ex.Message)
-        Exit Sub
+        Host.LogLine("Could not add HTTP listener prefix " & pfx.Prefix & " - Error: " & ex.Message)
+        Exit Function
       End Try
     Next
 
@@ -131,12 +119,12 @@ Public Class RedirectorPlugIn
       Listener.Start()
       Listener.BeginGetContext(AddressOf ListenerCallBack, Listener)
     Catch ex As Exception
-      RaiseEvent LogLine("Could not start HTTP listener - Error: " & ex.Message)
-      Exit Sub
+      Host.LogLine("Could not start HTTP listener - Error: " & ex.Message)
+      Exit Function
     End Try
 
-    RaiseEvent LogLine("Listening for HTTP requests")
-  End Sub
+    Host.LogLine("Listening for HTTP requests")
+  End Function
 
   Public Sub StopService() Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.StopService
     IsStopping = True
@@ -155,7 +143,7 @@ Public Class RedirectorPlugIn
         ctx = Listener.EndGetContext(ia)
       Catch ex As Exception
         If IsStopping Then Exit Sub
-        RaiseEvent LogLine("*** GetContext caused error: " & ex.Message)
+        Host.LogLine("*** GetContext caused error: " & ex.Message)
         Exit Sub
       End Try
 
@@ -183,24 +171,24 @@ Public Class RedirectorPlugIn
       Else
         If rd.Method = MyConfig.HNRedir.RedirMethod.Cloak Then
           RespBody = "<html>" & vbCrLf
-          If rd.CloakTitle.Length > 0 Then RespBody &= _
-                      "<head>" & vbCrLf & _
-                      "<title>" & HTMLEncode(rd.CloakTitle) & "</title>" & vbCrLf & _
+          If rd.CloakTitle.Length > 0 Then RespBody &=
+                      "<head>" & vbCrLf &
+                      "<title>" & HTMLEncode(rd.CloakTitle) & "</title>" & vbCrLf &
                       "</head>" & vbCrLf
-          RespBody &= "<frameset cols=""0,*"" framespacing=""0"" border=""0"" frameborder=""0"">" & vbCrLf & _
-                      "<frame name=""zero"" scrolling=""no"" noresize>" & vbCrLf & _
-                      "<frame name=""main"" src=""" & HTMLEncode(ToAddr) & """>" & vbCrLf & _
-                      "</frameset>" & vbCrLf & _
+          RespBody &= "<frameset cols=""0,*"" framespacing=""0"" border=""0"" frameborder=""0"">" & vbCrLf &
+                      "<frame name=""zero"" scrolling=""no"" noresize>" & vbCrLf &
+                      "<frame name=""main"" src=""" & HTMLEncode(ToAddr) & """>" & vbCrLf &
+                      "</frameset>" & vbCrLf &
                       "</html>" & vbCrLf
         Else
-          RespBody = "<html>" & vbCrLf & _
-                     "<head>" & vbCrLf & _
-                     "<title>Document Moved</title>" & vbCrLf & _
-                     "</head>" & vbCrLf & _
-                     "<body>" & vbCrLf & _
-                     "<h1>Document Moved</h1>" & vbCrLf & _
-                     "<p>This document may be found <a href=""" & HTMLEncode(ToAddr) & """>here</a></p>" & vbCrLf & _
-                     "</body>" & vbCrLf & _
+          RespBody = "<html>" & vbCrLf &
+                     "<head>" & vbCrLf &
+                     "<title>Document Moved</title>" & vbCrLf &
+                     "</head>" & vbCrLf &
+                     "<body>" & vbCrLf &
+                     "<h1>Document Moved</h1>" & vbCrLf &
+                     "<p>This document may be found <a href=""" & HTMLEncode(ToAddr) & """>here</a></p>" & vbCrLf &
+                     "</body>" & vbCrLf &
                      "</html>" & vbCrLf
         End If
       End If
@@ -216,7 +204,7 @@ Public Class RedirectorPlugIn
       Dim ba = System.Text.Encoding.UTF8.GetBytes(RespBody)
 
       REM this must be before response.close - otherwise cannot access ctx anymore (fixed v. 1.0.1)
-      RaiseEvent LogLine("HTTP request from " & ctx.Request.RemoteEndPoint.Address.ToString & _
+      Host.LogLine("HTTP request from " & ctx.Request.RemoteEndPoint.Address.ToString &
                            " for """ & ctx.Request.Url.ToString & """ redirected to """ & ToAddr & """")
 
       Try
@@ -230,14 +218,14 @@ markWait4Next:
       Listener.BeginGetContext(AddressOf ListenerCallBack, Listener)
 
     Catch ex As Exception
-      RaiseEvent AsyncError(ex)
+      Host.AsyncError(ex)
     End Try
   End Sub
 
   Private Function FindRedir(ByVal hn As String) As MyConfig.HNRedir
     If String.IsNullOrEmpty(hn) Then Return Cfg.DefaultRedir
-    Dim hnDom As DomainName = Nothing
-    If Not DomainName.TryParse(hn, hnDom) Then Return Cfg.DefaultRedir
+    Dim hnDom As DomName = Nothing
+    If Not DomName.TryParse(hn, hnDom) Then Return Cfg.DefaultRedir
     Dim sc = hnDom.SegmentCount
     If sc < MinSegCount Then Return Cfg.DefaultRedir
     Dim rd As MyConfig.HNRedir = Nothing
@@ -279,9 +267,9 @@ markWait4Next:
     For i = 0 To ba.Length - 1
       b = ba(i)
       REM 0-9, A-Z, a-z, - .
-      If (b >= 48 AndAlso b <= 57) OrElse _
-         (b >= 65 AndAlso b <= 90) OrElse _
-         (b >= 97 AndAlso b <= 122) OrElse _
+      If (b >= 48 AndAlso b <= 57) OrElse
+         (b >= 65 AndAlso b <= 90) OrElse
+         (b >= 97 AndAlso b <= 122) OrElse
          (b = 45 Or b = 46) Then
         sb.Append(ChrW(b))
       Else

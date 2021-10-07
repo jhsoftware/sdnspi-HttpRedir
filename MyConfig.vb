@@ -3,18 +3,18 @@
   Public ProtoHTTP As Boolean = True
   Public ProtoHTTPS As Boolean = False
 
-  Public BindIPv4 As Plugin.IPAddressV4
-  Public BindIPv6 As Plugin.IPAddressV6
+  Public BindIPv4 As SdnsIPv4
+  Public BindIPv6 As SdnsIPv6
 
-  Public NatIP As Plugin.IPAddressV4
+  Public NatIP As SdnsIPv4
   Public NatMap80 As Integer = 80
   Public NatMap443 As Integer = 443
 
   Public DefaultRedir As HNRedir
 
-  Public Redirs As New Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, HNRedir)
+  Public Redirs As New Dictionary(Of DomName, HNRedir)
 
-  Friend Function DnsIP(ipV6 As Boolean) As Plugin.IPAddress
+  Friend Function DnsIP(ipV6 As Boolean) As SdnsIP
     If ipV6 Then Return BindIPv6
     Return If(NatIP IsNot Nothing, NatIP, BindIPv4)
   End Function
@@ -33,9 +33,9 @@
 
   Class Binding
     Friend SSL As Boolean
-    Friend BindIP As Plugin.IPAddress
+    Friend BindIP As SdnsIP
     Friend BindPort As Integer
-    Friend NatIP As Plugin.IPAddressV4
+    Friend NatIP As SdnsIPv4
 
     Function Prefix() As String
       Return If(SSL, "https://", "http://") & If(BindIP.IPVersion = 6, "[" & BindIP.ToString & "]", BindIP.ToString) & ":" & BindPort & "/"
@@ -84,12 +84,12 @@
         .ProtoHTTP = True
         .ProtoHTTPS = False
 
-        .BindIPv4 = Plugin.IPAddressV4.Parse(root.GetAttrStr("bindIP"))
+        .BindIPv4 = SdnsIPv4.Parse(root.GetAttrStr("bindIP"))
         .BindIPv6 = Nothing
 
         Dim BehindNat = root.GetAttrBool("NAT")
         If BehindNat Then
-          .NatIP = JHSoftware.SimpleDNS.Plugin.IPAddressV4.Parse(root.GetAttrStr("publicIP"))
+          .NatIP = SdnsIPv4.Parse(root.GetAttrStr("publicIP"))
           .NatMap80 = root.GetAttrInt("bindPort", 80)
           .NatMap443 = 443
         End If
@@ -97,11 +97,11 @@
         .ProtoHTTP = root.GetAttrBool("HTTP")
         .ProtoHTTPS = root.GetAttrBool("HTTPS")
 
-        If root.HasAttribute("BindIPv4") Then .BindIPv4 = Plugin.IPAddressV4.Parse(root.GetAttrStr("BindIPv4"))
-        If root.HasAttribute("BindIPv6") Then .BindIPv6 = Plugin.IPAddressV6.Parse(root.GetAttrStr("BindIPv6"))
+        If root.HasAttribute("BindIPv4") Then .BindIPv4 = SdnsIPv4.Parse(root.GetAttrStr("BindIPv4"))
+        If root.HasAttribute("BindIPv6") Then .BindIPv6 = SdnsIPv6.Parse(root.GetAttrStr("BindIPv6"))
 
         If root.HasAttribute("NatIP") Then
-          .NatIP = JHSoftware.SimpleDNS.Plugin.IPAddressV4.Parse(root.GetAttrStr("NatIP"))
+          .NatIP = SdnsIPv4.Parse(root.GetAttrStr("NatIP"))
           .NatMap80 = root.GetAttrInt("NatMapHTTP", 80)
           .NatMap443 = root.GetAttrInt("NatMapHTTPS", 443)
         End If
@@ -122,7 +122,7 @@
   Friend Class HNRedir
     Implements AERListBoxMC.IItem
 
-    Public Name As JHSoftware.SimpleDNS.Plugin.DomainName
+    Public Name As DomName
     Public SubDoms As Boolean
     Public ToURL As String
     Public Relative As Boolean
@@ -158,7 +158,7 @@
 
     Public Sub SaveToXML(ByVal elem As Xml.XmlElement)
       With elem
-        If Name <> JHSoftware.SimpleDNS.Plugin.DomainName.Root Then .SetAttribute("name", Name.ToString)
+        If Name <> DomName.Root Then .SetAttribute("name", Name.ToString)
         If SubDoms Then .SetAttrBool("subNames", True)
         .SetAttribute("URL", ToURL)
         If Relative Then .SetAttrBool("relative", True)
@@ -177,7 +177,7 @@
     Public Shared Function LoadFromXML(ByVal elem As Xml.XmlElement) As HNRedir
       Dim rv As New HNRedir
       With rv
-        .Name = JHSoftware.SimpleDNS.Plugin.DomainName.Parse(elem.GetAttrStr("name", "."))
+        .Name = DomName.Parse(elem.GetAttrStr("name", "."))
         .SubDoms = elem.GetAttrBool("subNames")
         .ToURL = elem.GetAttrStr("URL")
         .Relative = elem.GetAttrBool("relative")

@@ -11,9 +11,9 @@ Public Class frmDomain
         txtDom.Focus()
         Exit Sub
       End If
-      Dim d As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
-      If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(txtDom.Text.Trim, d) OrElse _
-         d = JHSoftware.SimpleDNS.Plugin.DomainName.Root Then
+      Dim d As DomName = Nothing
+      If Not DomName.TryParse(txtDom.Text.Trim, d) OrElse
+         d = DomName.Root Then
         MessageBox.Show("Invalid domain name", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
         txtDom.Focus()
         Exit Sub
@@ -64,10 +64,10 @@ Public Class frmDomain
   Friend Function SaveData() As MyConfig.HNRedir
     Dim rv As New MyConfig.HNRedir
     If txtDom.Enabled Then
-      rv.Name = JHSoftware.SimpleDNS.Plugin.DomainName.Parse(txtDom.Text.Trim)
+      rv.Name = DomName.Parse(txtDom.Text.Trim)
       rv.SubDoms = chkSubDom.Checked
     Else
-      rv.Name = JHSoftware.SimpleDNS.Plugin.DomainName.Root
+      rv.Name = DomName.Root
     End If
     rv.ToURL = txtURL.Text.Trim
     rv.Relative = radRelative.Checked
