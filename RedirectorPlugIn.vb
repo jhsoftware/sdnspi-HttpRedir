@@ -39,28 +39,27 @@ Public Class RedirectorPlugIn
 
 #Region "other methods"
 
-  Public Function Lookup(ByVal req As IDNSRequest) As Threading.Tasks.Task(Of LookupResult(Of SdnsIP)) Implements JHSoftware.SimpleDNS.Plugin.ILookupHost.LookupHost
-    Return Threading.Tasks.Task.FromResult(Lookup2(req))
+  Public Function Lookup(name As DomName, ipv6 As Boolean, req As IDNSRequest) As Threading.Tasks.Task(Of LookupResult(Of SdnsIP)) Implements JHSoftware.SimpleDNS.Plugin.ILookupHost.LookupHost
+    Return Threading.Tasks.Task.FromResult(Lookup2(name, ipv6, req))
   End Function
-  Private Function Lookup2(ByVal req As IDNSRequest) As LookupResult(Of SdnsIP)
-    If req.QType = DNSRecType.A Then
-      If Cfg.BindIPv4 Is Nothing Then Return Nothing
-    Else
+  Private Function Lookup2(name As DomName, ipv6 As Boolean, req As IDNSRequest) As LookupResult(Of SdnsIP)
+    If ipv6 Then
       If Cfg.BindIPv6 Is Nothing Then Return Nothing
+    Else
+      If Cfg.BindIPv4 Is Nothing Then Return Nothing
     End If
 
-    Dim lookupName = req.QName
-    Dim sc = lookupName.SegmentCount
+    Dim sc = name.SegmentCount
     If sc < MinSegCount Then Return Nothing
-    If sc <= MaxSegCount AndAlso Cfg.Redirs.ContainsKey(lookupName) Then
-      Return New LookupResult(Of SdnsIP) With {.Value = Cfg.DnsIP(req.QType = DNSRecType.AAAA), .TTL = 5}
+    If sc <= MaxSegCount AndAlso Cfg.Redirs.ContainsKey(name) Then
+      Return New LookupResult(Of SdnsIP) With {.Value = Cfg.DnsIP(ipv6), .TTL = 5}
     End If
     If DomsWithSub.Count = 0 Then Return Nothing
     While sc > MinSegCount
-      lookupName = lookupName.Parent
+      name = name.Parent
       sc -= 1
-      If DomsWithSub.ContainsKey(lookupName) Then
-        Return New LookupResult(Of SdnsIP) With {.Value = Cfg.DnsIP(req.QType = DNSRecType.AAAA), .TTL = 5}
+      If DomsWithSub.ContainsKey(name) Then
+        Return New LookupResult(Of SdnsIP) With {.Value = Cfg.DnsIP(ipv6), .TTL = 5}
       End If
     End While
     Return Nothing
