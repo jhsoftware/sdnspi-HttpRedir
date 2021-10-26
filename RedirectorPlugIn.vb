@@ -17,11 +17,11 @@ Public Class RedirectorPlugIn
 
 #Region "read only properties"
 
-  Public Function GetPlugInTypeInfo() As Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetPlugInTypeInfo
+  Public Function GetPlugInTypeInfo() As Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetTypeInfo
     With GetPlugInTypeInfo
       .Name = "HTTP Redirector"
       .Description = "Redirects HTTP requests to another URL / port"
-      .InfoURL = "https://simpledns.plus/kb/179/http-redirector-plug-in"
+      .InfoURL = "https://simpledns.plus/plugin-httpredir"
     End With
   End Function
 
@@ -39,10 +39,10 @@ Public Class RedirectorPlugIn
 
 #Region "other methods"
 
-  Public Function Lookup(name As DomName, ipv6 As Boolean, req As IDNSRequest) As Threading.Tasks.Task(Of LookupResult(Of SdnsIP)) Implements JHSoftware.SimpleDNS.Plugin.ILookupHost.LookupHost
+  Public Function Lookup(name As DomName, ipv6 As Boolean, req As IRequestContext) As Threading.Tasks.Task(Of LookupResult(Of SdnsIP)) Implements JHSoftware.SimpleDNS.Plugin.ILookupHost.LookupHost
     Return Threading.Tasks.Task.FromResult(Lookup2(name, ipv6, req))
   End Function
-  Private Function Lookup2(name As DomName, ipv6 As Boolean, req As IDNSRequest) As LookupResult(Of SdnsIP)
+  Private Function Lookup2(name As DomName, ipv6 As Boolean, req As IRequestContext) As LookupResult(Of SdnsIP)
     If ipv6 Then
       If Cfg.BindIPv6 Is Nothing Then Return Nothing
     Else
