@@ -17,22 +17,12 @@ Public Class RedirectorPlugIn
 
 #Region "read only properties"
 
-  Public Function GetPlugInTypeInfo() As Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetTypeInfo
+  Public Function GetPlugInTypeInfo() As TypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetTypeInfo
     With GetPlugInTypeInfo
       .Name = "HTTP Redirector"
       .Description = "Redirects HTTP requests to another URL / port"
       .InfoURL = "https://simpledns.plus/plugin-httpredir"
     End With
-  End Function
-
-#End Region
-
-#Region "not implemented"
-  Public Sub LoadState(ByVal state As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadState
-  End Sub
-
-  Public Function SaveState() As String Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.SaveState
-    Return ""
   End Function
 
 #End Region
